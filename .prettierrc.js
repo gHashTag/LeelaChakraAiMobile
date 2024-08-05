@@ -4,4 +4,6 @@ module.exports = {
   bracketSpacing: false,
   singleQuote: true,
   trailingComma: 'all',
-};
+  semi: false,
+  importOrder: ['^@core/(.*)$', '<THIRD_PARTY_MODULES>', '^@ui/(.*)$', '^[./]'],
+}

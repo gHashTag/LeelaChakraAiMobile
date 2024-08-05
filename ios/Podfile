@@ -14,6 +14,26 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
+$RNFirebaseAsStaticFramework = true
+
+use_frameworks! :linkage => :static
+
+# Add the Firebase pod for Google Analytics
+pod 'FirebaseAnalytics'
+# For Analytics without IDFA collection capability, use this pod instead
+# pod ‘Firebase/AnalyticsWithoutAdIdSupport’
+pod 'FirebaseAuth'
+pod 'FirebaseFirestore'
+pod 'Firebase', :modular_headers => true
+pod 'FirebaseCoreInternal', :modular_headers => true
+pod 'GoogleUtilities', :modular_headers => true
+pod 'FirebaseStorage', :modular_headers => true
+pod 'FirebaseAuthInterop', :modular_headers => true
+pod 'FirebaseCore', :modular_headers => true
+pod 'FirebaseCoreExtension', :modular_headers => true
+pod 'FirebaseAppCheckInterop', :modular_headers => true
+pod 'GTMSessionFetcher', :modular_headers => true
+
 target 'LeelaChakraAiMobile' do
   config = use_native_modules!
 
