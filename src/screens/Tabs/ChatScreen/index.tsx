@@ -1,14 +1,14 @@
-import { OPEN_AI_KEY } from '@env'
+import {OPEN_AI_KEY} from '@env'
 import axios from 'axios'
-import React, { useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { ActivityIndicator, StyleSheet, View } from 'react-native'
-import { Bubble, GiftedChat, IMessage } from 'react-native-gifted-chat'
-import { s } from 'react-native-size-matters'
-import { ButtonWithIcon, Header, Space } from '../../../components'
-import { brightTurquoise, onLeaveFeedback, trueBlue } from '../../../constants'
-import { DiceStore, actionsDice } from '../../../store'
-import { useRevenueCat } from '../../../providers/RevenueCatProvider'
+import React, {useEffect, useState} from 'react'
+import {useTranslation} from 'react-i18next'
+import {ActivityIndicator, StyleSheet, View} from 'react-native'
+import {Bubble, GiftedChat, IMessage} from 'react-native-gifted-chat'
+import {s} from 'react-native-size-matters'
+import {ButtonWithIcon, Header, Space} from '../../../components'
+import {brightTurquoise, onLeaveFeedback, trueBlue} from '../../../constants'
+import {DiceStore, actionsDice} from '../../../store'
+import {useRevenueCat} from '../../../providers/RevenueCatProvider'
 
 const LEELA_AI = require('../../../../assets/defaultImage/leelaAI.jpg')
 
@@ -20,32 +20,32 @@ interface IContextSummary {
 const LOADING_MESSAGE_ID = 'loading-message-id'
 
 const ChatScreen: React.FC = () => {
-  const { user } = useRevenueCat()
+  const {user} = useRevenueCat()
   const [messages, setMessages] = useState<IMessage[]>([])
   const [contextSummary, setContextSummary] = useState<IContextSummary>({
     user: [],
-    assistant: []
+    assistant: [],
   })
   const [loading, setLoading] = useState(false)
 
-  const { t } = useTranslation()
+  const {t} = useTranslation()
 
   const updateContextSummary = (message: IMessage) => {
     const messageLimit = -5
     if (message.user._id === 1) {
-      setContextSummary((prevState) => {
+      setContextSummary(prevState => {
         const newUserMessages = [...prevState.user, message.text].slice(
-          messageLimit
+          messageLimit,
         )
-        return { ...prevState, user: newUserMessages }
+        return {...prevState, user: newUserMessages}
       })
     } else {
-      setContextSummary((prevState) => {
+      setContextSummary(prevState => {
         const newAssistantMessages = [
           ...prevState.assistant,
-          message.text
+          message.text,
         ].slice(messageLimit)
-        return { ...prevState, assistant: newAssistantMessages }
+        return {...prevState, assistant: newAssistantMessages}
       })
     }
   }
@@ -59,16 +59,16 @@ const ChatScreen: React.FC = () => {
         user: {
           _id: 2,
           name: 'Assistant',
-          avatar: LEELA_AI
-        }
-      }
+          avatar: LEELA_AI,
+        },
+      },
     ])
   }, [t])
 
   const onSend = async (newMessages: IMessage[] = []) => {
     setLoading(true)
-    setMessages((previousMessages) =>
-      GiftedChat.append(previousMessages, newMessages)
+    setMessages(previousMessages =>
+      GiftedChat.append(previousMessages, newMessages),
     )
 
     updateContextSummary(newMessages[0])
@@ -76,17 +76,17 @@ const ChatScreen: React.FC = () => {
     const apiMessages = [
       {
         role: 'system',
-        content: t('system')
+        content: t('system'),
       },
-      ...contextSummary.user.map((content) => ({ role: 'user', content })),
-      ...contextSummary.assistant.map((content) => ({
+      ...contextSummary.user.map(content => ({role: 'user', content})),
+      ...contextSummary.assistant.map(content => ({
         role: 'assistant',
-        content
+        content,
       })),
-      { role: 'user', content: newMessages[0].text }
+      {role: 'user', content: newMessages[0].text},
     ]
 
-    setMessages((previousMessages) =>
+    setMessages(previousMessages =>
       GiftedChat.append(previousMessages, [
         {
           _id: LOADING_MESSAGE_ID,
@@ -95,12 +95,12 @@ const ChatScreen: React.FC = () => {
           user: {
             _id: 2,
             name: 'Assistant',
-            avatar: LEELA_AI
-          }
-        }
-      ])
+            avatar: LEELA_AI,
+          },
+        },
+      ]),
     )
-    const modelGPT = user.pro ? 'gpt-4-1106-preview' : 'gpt-4-1106-preview'
+    const modelGPT = user.pro ? 'gpt-4o-mini' : 'gpt-4o-mini'
 
     // Запрос к OpenAI API
     const response = await axios.post(
@@ -109,27 +109,27 @@ const ChatScreen: React.FC = () => {
         model: modelGPT,
         messages: apiMessages,
         max_tokens: 800,
-        temperature: 0.1
+        temperature: 0.1,
       },
       {
         headers: {
           Authorization: `Bearer ${OPEN_AI_KEY}`,
-          'Content-Type': 'application/json'
-        }
-      }
+          'Content-Type': 'application/json',
+        },
+      },
     )
 
     setLoading(false)
 
-    setMessages((previousMessages) =>
-      previousMessages.filter((message) => message._id !== LOADING_MESSAGE_ID)
+    setMessages(previousMessages =>
+      previousMessages.filter(message => message._id !== LOADING_MESSAGE_ID),
     )
 
     const assistantReply = response.data.choices[0].message.content
 
     const loadingMessageId = Date.now().toString()
 
-    setMessages((previousMessages) =>
+    setMessages(previousMessages =>
       GiftedChat.append(previousMessages, [
         {
           _id: loadingMessageId,
@@ -138,18 +138,18 @@ const ChatScreen: React.FC = () => {
           user: {
             _id: 2,
             name: 'Assistant',
-            avatar: LEELA_AI
-          }
-        }
-      ])
+            avatar: LEELA_AI,
+          },
+        },
+      ]),
     )
   }
 
   const onPressRate = () => {
-    onLeaveFeedback((success) => actionsDice.setRate(success))
+    onLeaveFeedback(success => actionsDice.setRate(success))
   }
   // @ts-expect-error
-  const renderBubble = (props) => {
+  const renderBubble = props => {
     if (props.currentMessage._id === LOADING_MESSAGE_ID) {
       return (
         <View>
@@ -166,11 +166,11 @@ const ChatScreen: React.FC = () => {
       <Bubble
         {...props}
         wrapperStyle={{
-          right: { backgroundColor: `${brightTurquoise}` }
+          right: {backgroundColor: `${brightTurquoise}`},
         }}
         textStyle={{
-          left: { fontFamily: 'Montserrat' },
-          right: { color: '#000', fontFamily: 'Montserrat' }
+          left: {fontFamily: 'Montserrat'},
+          right: {color: '#000', fontFamily: 'Montserrat'},
         }}
       />
     )
@@ -196,9 +196,9 @@ const ChatScreen: React.FC = () => {
       <GiftedChat
         messages={messages}
         renderBubble={renderBubble}
-        onSend={(newMessages) => onSend(newMessages)}
+        onSend={newMessages => onSend(newMessages)}
         user={{
-          _id: 1
+          _id: 1,
         }}
       />
     </>
@@ -209,11 +209,11 @@ const styles = StyleSheet.create({
   bubble: {
     padding: 10,
     top: 1,
-    alignItems: 'center'
+    alignItems: 'center',
   },
   feadbackContainer: {
-    alignSelf: 'center'
-  }
+    alignSelf: 'center',
+  },
 })
 
-export { ChatScreen }
+export {ChatScreen}

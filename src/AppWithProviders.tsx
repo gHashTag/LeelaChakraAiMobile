@@ -78,9 +78,9 @@ function AppWithProviders() {
   return (
     <SafeAreaProvider>
       <GestureHandlerRootView style={styles.flexOne}>
-        <RevenueCatProvider>
-          <Navigation />
-        </RevenueCatProvider>
+        {/* <RevenueCatProvider> */}
+        <Navigation />
+        {/* </RevenueCatProvider> */}
       </GestureHandlerRootView>
     </SafeAreaProvider>
   )

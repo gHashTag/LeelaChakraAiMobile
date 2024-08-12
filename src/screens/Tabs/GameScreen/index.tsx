@@ -119,9 +119,9 @@ const GameScreen = observer(({navigation}: GameScreenT) => {
       </Header>
       {!endGame && <Dice disabled={isBlockGame} />}
 
-      {isBlockGame && (
+      {/* {isBlockGame && (
         <ButtonSimple onPress={_onPress} h="h3" title={t('buy')} />
-      )}
+      )} */}
 
       {/* <Text h="h3" title={`user.pro: ${user.pro}`} />
       <Text h="h3" title={`isBlockGame: ${isBlockGame}`} /> */}
