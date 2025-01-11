@@ -1,16 +1,19 @@
-import { LEELA_ID, YANDEX_FOLDER_ID, YANDEX_TRANSLATE_API_KEY } from '@env'
+import {
+  LEELA_ID,
+  // YANDEX_FOLDER_ID, YANDEX_TRANSLATE_API_KEY
+} from '@env'
 import auth from '@react-native-firebase/auth'
 import firestore, {
-  FirebaseFirestoreTypes
+  FirebaseFirestoreTypes,
 } from '@react-native-firebase/firestore'
-import { makeAutoObservable } from 'mobx'
-import { nanoid } from 'nanoid/non-secure'
-import { captureException, generateComment } from '../constants'
+import {makeAutoObservable} from 'mobx'
+import {nanoid} from 'nanoid/non-secure'
+import {captureException, generateComment} from '../constants'
 import i18next from '../i18n'
-import { flagEmoji, lang } from '../i18n'
-import { getProfile, getUid } from '../screens/helper'
-import { OnlinePlayer } from '../store/OnlinePlayer'
-import { OtherPlayers } from '../store/OtherPlayers'
+import {flagEmoji, lang} from '../i18n'
+import {getProfile, getUid} from '../screens/helper'
+import {OnlinePlayer} from '../store/OnlinePlayer'
+import {OtherPlayers} from '../store/OtherPlayers'
 
 import {
   CommentT,
@@ -18,7 +21,7 @@ import {
   FormPostT,
   FormReplyCom,
   PostT,
-  ReplyComT
+  ReplyComT,
 } from '../types/types'
 
 type fetchT =
@@ -54,7 +57,7 @@ export const PostStore = {
     replyComments: [],
     loadOwnPosts: true,
     loadPosts: true,
-    myCountPosts: 0
+    myCountPosts: 0,
   }),
   countPosts: async () => {
     try {
@@ -75,13 +78,7 @@ export const PostStore = {
     }
   },
 
-  createPost: async ({
-    text,
-    plan,
-    systemMessage,
-    planText,
-    pro
-  }: FormPostT) => {
+  createPost: async ({text, plan, systemMessage, planText, pro}: FormPostT) => {
     const userUid = auth().currentUser?.uid
     const email = auth().currentUser?.email
     if (userUid && email) {
@@ -100,7 +97,7 @@ export const PostStore = {
         flagEmoji,
         planText,
         ownerId: userUid,
-        pro
+        pro,
       }
       try {
         await firestore().collection('Posts').doc(id).set(post)
@@ -114,7 +111,7 @@ export const PostStore = {
             message: textMessage,
             systemMessage,
             planText,
-            pro
+            pro,
           })
           return createdPostData
         } else {
@@ -128,7 +125,7 @@ export const PostStore = {
     throw new Error('Missing userUid or email')
   },
 
-  createComment: async ({ text, postId, postOwner, ownerId }: FormCommentT) => {
+  createComment: async ({text, postId, postOwner, ownerId}: FormCommentT) => {
     try {
       const userUid = ownerId !== LEELA_ID ? auth().currentUser?.uid : ownerId
 
@@ -145,13 +142,13 @@ export const PostStore = {
           createTime: Date.now(),
           email: email,
           reply: false,
-          id: path
+          id: path,
         }
 
         await firestore()
           .collection('Posts')
           .doc(postId)
-          .update({ comments: firestore.FieldValue.arrayUnion(path) })
+          .update({comments: firestore.FieldValue.arrayUnion(path)})
         await firestore().collection('Comments').doc(path).set(comment)
       }
     } catch (error) {
@@ -159,19 +156,19 @@ export const PostStore = {
       throw error
     }
   },
-  removeCommentIdInPost: async ({ commentId, postId }: delCommentIdT) => {
+  removeCommentIdInPost: async ({commentId, postId}: delCommentIdT) => {
     postId &&
       firestore()
         .collection('Posts')
         .doc(postId)
-        .update({ comments: firestore.FieldValue.arrayRemove(commentId) })
+        .update({comments: firestore.FieldValue.arrayRemove(commentId)})
   },
-  delComment: async ({ commentId, isReply, postId }: delCommentT) => {
+  delComment: async ({commentId, isReply, postId}: delCommentT) => {
     await firestore().collection('Comments').doc(commentId).delete()
     PostStore.store.comments = PostStore.store.comments.filter(
-      (a) => a.id !== commentId
+      a => a.id !== commentId,
     )
-    PostStore.removeCommentIdInPost({ commentId, postId })
+    PostStore.removeCommentIdInPost({commentId, postId})
     if (!isReply) {
       firestore()
         .collection('Comments')
@@ -180,7 +177,7 @@ export const PostStore = {
         .then(function (querySnap) {
           querySnap.forEach(function (doc) {
             const data = doc.data()
-            PostStore.removeCommentIdInPost({ commentId: data.id, postId })
+            PostStore.removeCommentIdInPost({commentId: data.id, postId})
             doc.ref.delete()
           })
         })
@@ -190,7 +187,7 @@ export const PostStore = {
     text,
     commentId,
     postId,
-    commentOwner
+    commentOwner,
   }: FormReplyCom) => {
     const userUid = auth().currentUser?.uid
     const prof = await getProfile()
@@ -208,12 +205,12 @@ export const PostStore = {
           createTime: Date.now(),
           email: prof.email,
           reply: true,
-          id: path
+          id: path,
         }
         await firestore()
           .collection('Posts')
           .doc(postId)
-          .update({ comments: firestore.FieldValue.arrayUnion(path) })
+          .update({comments: firestore.FieldValue.arrayUnion(path)})
         await firestore().collection('Comments').doc(path).set(comment)
       }
     }
@@ -223,14 +220,14 @@ export const PostStore = {
     const uid = getUid()
     const isAdmin = OnlinePlayer.store.status === 'Admin'
     const res: any[] = querySnap.docs
-      .map((a) => {
+      .map(a => {
         if (a.exists) {
           const data = a.data()
           return data
         }
       })
-      .filter((a) => a !== undefined)
-      .filter((a) => (isAdmin ? true : a?.ownerId === uid ? true : a?.accept))
+      .filter(a => a !== undefined)
+      .filter(a => (isAdmin ? true : a?.ownerId === uid ? true : a?.accept))
     if (res.length > 0) {
       PostStore.store.posts = res.sort((a, b) => b.createTime - a.createTime)
     }
@@ -240,14 +237,14 @@ export const PostStore = {
     PostStore.store.loadOwnPosts = true
     const uid = getUid()
     const res: any[] = querySnap.docs
-      .map((a) => {
+      .map(a => {
         if (a.exists) {
           const data = a.data()
           return data
         }
       })
-      .filter((a) => a !== undefined)
-      .filter((a) => a?.ownerId === uid)
+      .filter(a => a !== undefined)
+      .filter(a => a?.ownerId === uid)
     if (res.length > 0) {
       PostStore.store.ownPosts = res.sort((a, b) => b.createTime - a.createTime)
     }
@@ -256,21 +253,21 @@ export const PostStore = {
   fetchComments: async (querySnap: fetchT) => {
     const res: any[] = await Promise.all(
       querySnap.docs
-        .map(async (a) => {
+        .map(async a => {
           if (a.exists) {
             const data = a.data()
             return data
           }
         })
-        .filter((a: any) => a !== undefined)
+        .filter((a: any) => a !== undefined),
       // (a !== undefined ? (a.reply ? false : true) : false)
     )
     if (res.length > 0) {
       PostStore.store.comments = res
-        .filter((a) => (a.reply ? false : true))
+        .filter(a => (a.reply ? false : true))
         .sort((a, b) => b.createTime - a.createTime)
       PostStore.store.replyComments = res
-        .filter((a) => (a.reply ? true : false))
+        .filter(a => (a.reply ? true : false))
         .sort((a, b) => a.createTime - b.createTime)
     }
   },
@@ -280,7 +277,7 @@ export const PostStore = {
       .collection('Posts')
       .doc(postId)
       .update({
-        liked: firestore.FieldValue.arrayUnion(userUid)
+        liked: firestore.FieldValue.arrayUnion(userUid),
       })
   },
   unlikePost: async (postId: string) => {
@@ -289,7 +286,7 @@ export const PostStore = {
       .collection('Posts')
       .doc(postId)
       .update({
-        liked: firestore.FieldValue.arrayRemove(userUid)
+        liked: firestore.FieldValue.arrayRemove(userUid),
       })
   },
   getOwnerName: (ownerId: string, full?: boolean) => {
@@ -298,7 +295,7 @@ export const PostStore = {
     if (userUid === ownerId) {
       return displayName
     }
-    const profile = OtherPlayers.store.players.find((a) => a.owner === ownerId)
+    const profile = OtherPlayers.store.players.find(a => a.owner === ownerId)
     if (!profile) {
       return i18next.t('anonymous')
     }
@@ -311,8 +308,7 @@ export const PostStore = {
     if (userUid === ownerId) {
       return OnlinePlayer.store.plan
     }
-    const plan = OtherPlayers.store.players.find((a) => a.owner === ownerId)
-      ?.plan
+    const plan = OtherPlayers.store.players.find(a => a.owner === ownerId)?.plan
     if (!plan) {
       return 0
     }
@@ -322,43 +318,44 @@ export const PostStore = {
     await firestore()
       .collection('Profiles')
       .get()
-      .then((snap) => OtherPlayers.getOtherProf({ snapshot: snap }))
+      .then(snap => OtherPlayers.getOtherProf({snapshot: snap}))
     await firestore().collection('Posts').get().then(PostStore.fetchPosts)
   },
-  translateText: async (text: string) => {
-    try {
-      const res = await (
-        await fetch(
-          'https://translate.api.cloud.yandex.net/translate/v2/translate',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Api-Key ${YANDEX_TRANSLATE_API_KEY}`
-            },
-            body: JSON.stringify({
-              folderId: YANDEX_FOLDER_ID,
-              texts: text,
-              targetLanguageCode: lang
-            })
-          }
-        )
-      ).json()
-      if (res?.translations && res.translations?.length > 0) {
-        return res.translations[0].text
-      }
-    } catch (err) {
-      captureException(err, 'translateText')
-    }
-    return text
-  },
+  // translateText: async (text: string) => {
+  //   try {
+  //     const res = await (
+  //       await fetch(
+  //         'https://translate.api.cloud.yandex.net/translate/v2/translate',
+  //         {
+  //           method: 'POST',
+  //           headers: {
+  //             'Content-Type': 'application/json',
+  //             Authorization: `Api-Key ${YANDEX_TRANSLATE_API_KEY}`,
+  //           },
+  //           body: JSON.stringify({
+  //             folderId: YANDEX_FOLDER_ID,
+  //             texts: text,
+  //             targetLanguageCode: lang,
+  //           }),
+  //         },
+  //       )
+  //     ).json()
+  //     if (res?.translations && res.translations?.length > 0) {
+  //       return res.translations[0].text
+  //     }
+  //   } catch (err) {
+  //     captureException(err, 'translateText')
+  //   }
+  //   return text
+  // },
   getAvaById: (uid: string) => {
     const userUid = getUid()
     if (userUid === uid) {
       return OnlinePlayer.store.avatar
     }
-    const otherUserAva = OtherPlayers.store.players.find((a) => a.owner === uid)
-      ?.avatar
+    const otherUserAva = OtherPlayers.store.players.find(
+      a => a.owner === uid,
+    )?.avatar
     return otherUserAva
       ? otherUserAva
       : 'https://bafkreiftrmfmimlvo26xaxfvt2ypnjjaavq5mgnkjljs6mczfekii4cmtq.ipfs.nftstorage.link/'
@@ -370,9 +367,9 @@ export const PostStore = {
       ).data()
       if (profile && profile.status !== 'Admin') {
         if (profile.status === 'ban') {
-          firestore().collection('Profiles').doc(uid).update({ status: null })
+          firestore().collection('Profiles').doc(uid).update({status: null})
         } else {
-          firestore().collection('Profiles').doc(uid).update({ status: 'ban' })
+          firestore().collection('Profiles').doc(uid).update({status: 'ban'})
         }
       }
     } catch (error) {
@@ -384,11 +381,11 @@ export const PostStore = {
       .collection('Comments')
       .where('postId', '==', id)
       .get()
-      .then((querySnap) => {
-        querySnap.forEach(async (doc) => {
+      .then(querySnap => {
+        querySnap.forEach(async doc => {
           const data = doc.data()
           const comId = data.id
-          PostStore.delComment({ commentId: comId, isReply: true })
+          PostStore.delComment({commentId: comId, isReply: true})
         })
       })
     firestore().collection('Posts').doc(id).delete()
@@ -398,8 +395,8 @@ export const PostStore = {
       .collection('Posts')
       .where('ownerId', '==', userUid)
       .get()
-      .then((querySnap) => {
-        querySnap.forEach(async (doc) => {
+      .then(querySnap => {
+        querySnap.forEach(async doc => {
           const postId = doc.data().id
           PostStore.delPost(postId)
         })
@@ -410,17 +407,17 @@ export const PostStore = {
       .collection('Comments')
       .where('ownerId', '==', userUid)
       .get()
-      .then((querySnap) => {
-        querySnap.forEach(async (doc) => {
+      .then(querySnap => {
+        querySnap.forEach(async doc => {
           const data = doc.data()
           const commentId = data.id
           const isReply = data.reply
           const postId = data.postId
-          PostStore.delComment({ commentId, isReply, postId })
+          PostStore.delComment({commentId, isReply, postId})
         })
       })
   },
   acceptPost: (isAccept: boolean, postId: string) => {
-    firestore().collection('Posts').doc(postId).update({ accept: !isAccept })
-  }
+    firestore().collection('Posts').doc(postId).update({accept: !isAccept})
+  },
 }

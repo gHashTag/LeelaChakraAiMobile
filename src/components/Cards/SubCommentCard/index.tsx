@@ -1,51 +1,51 @@
-import React, { useState } from 'react'
+import React from 'react'
 
-import { StyleSheet, View } from 'react-native'
-import { s, vs } from 'react-native-size-matters'
-import { useTypedNavigation } from '../../../hooks'
+import {StyleSheet, View} from 'react-native'
+import {s, vs} from 'react-native-size-matters'
+import {useTypedNavigation} from '../../../hooks'
 
-import { getActions } from './ModalActions'
-
-import { HashtagFormat, Space, Text } from '../../'
-import { PlanAvatar } from '../../'
-import { OpenActionsModal, fuchsia, lightGray } from '../../../constants'
-import { getTimeStamp } from '../../../screens/helper'
-import { PostStore } from '../../../store'
-import { ReplyComT } from '../../../types/types'
-import { ButtonVectorIcon } from '../../Buttons'
+import {HashtagFormat, Space, Text} from '../../'
+import {PlanAvatar} from '../../'
+import {fuchsia, lightGray} from '../../../constants'
+import {getTimeStamp} from '../../../screens/helper'
+import {PostStore} from '../../../store'
+import {ReplyComT} from '../../../types/types'
 
 interface SubComT {
   item: ReplyComT
   index: number
 }
 
-export function SubCommentCard({ item }: SubComT) {
-  const [hideTranslate, setHideTranslate] = useState(true)
-  const [transText, setTransText] = useState('')
-  const { navigate } = useTypedNavigation()
+export function SubCommentCard({item}: SubComT) {
+  // const [hideTranslate, setHideTranslate] = useState(true)
+  // const [transText, setTransText] = useState('')
+  const {navigate} = useTypedNavigation()
 
-  const date = getTimeStamp({ lastTime: item.createTime, type: '-short' })
+  const date = getTimeStamp({lastTime: item.createTime, type: '-short'})
   const avaUrl = PostStore.getAvaById(item.ownerId)
 
-  async function handleTransText() {
-    if (hideTranslate && transText === '') {
-      const translated = await PostStore.translateText(item.text)
-      setTransText(translated)
-    }
-    setHideTranslate((pr) => !pr)
-  }
+  // async function handleTransText() {
+  //   if (hideTranslate && transText === '') {
+  //     const translated = await PostStore.translateText(item.text)
+  //     setTransText(translated)
+  //   }
+  //   setHideTranslate(pr => !pr)
+  // }
 
-  const OpenModal = () => {
-    const modalButtons = getActions({ handleTransText, hideTranslate, item })
-    OpenActionsModal(modalButtons)
-  }
+  // const OpenModal = () => {
+  //   const modalButtons = getActions({handleTransText, hideTranslate, item})
+  //   OpenActionsModal(modalButtons)
+  // }
 
   const handleProfile = () => {
     if (item?.ownerId) {
-      navigate('USER_PROFILE_SCREEN', { ownerId: item?.ownerId })
+      navigate('USER_PROFILE_SCREEN', {
+        ownerId: item?.ownerId,
+        editable: false,
+      })
     }
   }
-  const text = hideTranslate ? item.text : transText
+  const text = item.text
   const curName = PostStore.getOwnerName(item.ownerId, false)
   return (
     <View style={styles.container}>
@@ -69,12 +69,12 @@ export function SubCommentCard({ item }: SubComT) {
             />
           </View>
         </View>
-        <ButtonVectorIcon
-          size={s(10)}
-          name="chevron-down"
-          onPress={OpenModal}
-        />
-        <Space width={s(8)} />
+        {/* <ButtonVectorIcon
+            size={s(10)}
+            name="chevron-down"
+            onPress={OpenModal}
+          />
+          <Space width={s(8)} /> */}
       </View>
       <Space height={vs(3)} />
       <View style={styles.textContainer}>
@@ -87,21 +87,21 @@ export function SubCommentCard({ item }: SubComT) {
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: vs(5)
+    marginVertical: vs(5),
   },
   infoLine: {
     flexDirection: 'row',
-    flexWrap: 'wrap'
+    flexWrap: 'wrap',
   },
   infoContainer: {
     flexDirection: 'column',
-    flex: 1
+    flex: 1,
   },
   commentHead: {
     flexDirection: 'row',
-    flexWrap: 'wrap'
+    flexWrap: 'wrap',
   },
   textContainer: {
-    flexDirection: 'row'
-  }
+    flexDirection: 'row',
+  },
 })

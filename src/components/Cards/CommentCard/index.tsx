@@ -1,24 +1,15 @@
-import React, { useState } from 'react'
+import React, {useState} from 'react'
 
-import { observer } from 'mobx-react'
-import { FlatList, LayoutChangeEvent, StyleSheet, View } from 'react-native'
-import { s, vs } from 'react-native-size-matters'
-import { useTypedNavigation } from '../../../hooks'
+import {observer} from 'mobx-react'
+import {FlatList, LayoutChangeEvent, StyleSheet, View} from 'react-native'
+import {s, vs} from 'react-native-size-matters'
+import {useTypedNavigation} from '../../../hooks'
 
-import { getActions } from './ModalActions'
-
-import {
-  ButtonVectorIcon,
-  HashtagFormat,
-  PlanAvatar,
-  Space,
-  SubCommentCard,
-  Text
-} from '../../'
-import { OpenActionsModal, gray, lightGray } from '../../../constants'
-import { getTimeStamp } from '../../../screens/helper'
-import { PostStore } from '../../../store'
-import { CommentT } from '../../../types/types'
+import {HashtagFormat, PlanAvatar, Space, SubCommentCard, Text} from '../../'
+import {gray, lightGray} from '../../../constants'
+import {getTimeStamp} from '../../../screens/helper'
+import {PostStore} from '../../../store'
+import {CommentT} from '../../../types/types'
 
 interface CommentCardI {
   item: CommentT
@@ -29,36 +20,36 @@ interface CommentCardI {
 const PADDING = vs(1)
 
 export const CommentCard: React.FC<CommentCardI> = observer(
-  ({ item, index, endIndex }) => {
+  ({item, index, endIndex}) => {
     const [lineHeight, setLineHeight] = useState(0)
-    const [hideTranslate, setHideTranslate] = useState(true)
-    const [transText, setTransText] = useState('')
-    const { navigate } = useTypedNavigation()
+    // const [hideTranslate, setHideTranslate] = useState(true)
+    // const [transText, setTransText] = useState('')
+    const {navigate} = useTypedNavigation()
 
     const avaUrl = PostStore.getAvaById(item.ownerId)
 
-    const date = getTimeStamp({ lastTime: item.createTime, type: '-short' })
+    const date = getTimeStamp({lastTime: item.createTime, type: '-short'})
 
     const _onLayout = (e: LayoutChangeEvent) => {
       setLineHeight(e.nativeEvent.layout.height)
     }
 
-    const handleTransText = async () => {
-      if (hideTranslate && transText === '') {
-        const translated = await PostStore.translateText(item.text)
-        setTransText(translated)
-      }
-      setHideTranslate((pr) => !pr)
-    }
-    const OpenModal = () => {
-      const modalButtons = getActions({ item, handleTransText })
-      OpenActionsModal(modalButtons)
-    }
+    // const handleTransText = async () => {
+    //   // if (hideTranslate && transText === '') {
+    //   // const translated = await PostStore.translateText(item.text)
+    //   // setTransText(translated)
+    //   // }
+    //   // setHideTranslate(pr => !pr)
+    // }
+    // const OpenModal = () => {
+    //   const modalButtons = getActions({item, handleTransText})
+    //   OpenActionsModal(modalButtons)
+    // }
 
-    const text = hideTranslate ? item.text : transText
+    const text = item.text
 
     const subCom = PostStore.store.replyComments.filter(
-      (a) => a.commentId === item.id
+      a => a.commentId === item.id,
     )
     const showLine = endIndex !== index || subCom.length > 0
     const isSmallLine = subCom.length > 0 && endIndex === index
@@ -71,7 +62,7 @@ export const CommentCard: React.FC<CommentCardI> = observer(
       if (item?.ownerId) {
         navigate('USER_PROFILE_SCREEN', {
           ownerId: item?.ownerId,
-          editable: false
+          editable: false,
         })
       }
     }
@@ -79,7 +70,7 @@ export const CommentCard: React.FC<CommentCardI> = observer(
     return (
       <>
         <View style={styles.container}>
-          <View style={{ marginRight: s(6) }}>
+          <View style={{marginRight: s(6)}}>
             <PlanAvatar
               avaUrl={avaUrl}
               onPress={handleProfile}
@@ -89,7 +80,7 @@ export const CommentCard: React.FC<CommentCardI> = observer(
             />
             {showLine && (
               <View style={styles.lineCont} onLayout={_onLayout}>
-                <View style={[styles.verticalLine, { height: lineH }]} />
+                <View style={[styles.verticalLine, {height: lineH}]} />
               </View>
             )}
           </View>
@@ -98,24 +89,24 @@ export const CommentCard: React.FC<CommentCardI> = observer(
               <Text numberOfLines={1} h={'h6'} title={curName as string} />
               <Text
                 numberOfLines={1}
-                colors={{ light: lightGray, dark: gray }}
+                colors={{light: lightGray, dark: gray}}
                 h={'h6'}
                 title={`  · ${date}`}
               />
               <View style={styles.flexOne} />
-              <ButtonVectorIcon
+              {/* <ButtonVectorIcon
                 size={s(15)}
                 name="chevron-down"
                 onPress={OpenModal}
               />
-              <Space width={s(5)} />
+              <Space width={s(5)} /> */}
             </View>
             <HashtagFormat h="h6" title={text} selectable />
             <Space height={vs(20)} />
             <FlatList
               data={subCom}
-              keyExtractor={(a) => a.id}
-              renderItem={({ item: commentItem, index: id }) => (
+              keyExtractor={a => a.id}
+              renderItem={({item: commentItem, index: id}) => (
                 <SubCommentCard item={commentItem} index={id} />
               )}
             />
@@ -123,7 +114,7 @@ export const CommentCard: React.FC<CommentCardI> = observer(
         </View>
       </>
     )
-  }
+  },
 )
 
 const styles = StyleSheet.create({
@@ -131,28 +122,28 @@ const styles = StyleSheet.create({
     paddingVertical: PADDING,
     flexDirection: 'row',
     paddingHorizontal: s(13),
-    paddingTop: 15
+    paddingTop: 15,
   },
   verticalLine: {
     width: s(2),
     borderRadius: s(3),
     backgroundColor: lightGray,
-    transform: [{ translateY: vs(2) }]
+    transform: [{translateY: vs(2)}],
   },
   lineCont: {
     flex: 1,
-    alignItems: 'center'
+    alignItems: 'center',
   },
   content: {
     top: 10,
     flexDirection: 'column',
-    flex: 1
+    flex: 1,
   },
   commentHead: {
     flexDirection: 'row',
-    flexWrap: 'wrap'
+    flexWrap: 'wrap',
   },
   flexOne: {
-    flex: 1
-  }
+    flex: 1,
+  },
 })

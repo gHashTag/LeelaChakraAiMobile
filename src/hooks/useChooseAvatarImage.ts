@@ -1,6 +1,5 @@
 import {useState} from 'react'
 import {Buffer} from 'buffer'
-import {NFT_STORAGE_API_KEY} from '@env'
 import {captureException, secondary, white} from '../constants'
 import ImagePicker from 'react-native-image-crop-picker'
 import RNFetchBlob from 'rn-fetch-blob'

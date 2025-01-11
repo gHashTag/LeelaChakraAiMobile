@@ -18,7 +18,7 @@ import {OnlinePlayer, PostStore} from '../../../store'
 import {PostT} from '../../../types/types'
 
 import {usePostActions} from './usePostActions'
-import {usePostTranslation} from './usePostTranslation'
+// import {usePostTranslation} from './usePostTranslation'
 import {useRevenueCat} from '../../../providers/RevenueCatProvider'
 
 interface postCardI {
@@ -35,8 +35,8 @@ export const PostCard: React.FC<postCardI> = memo(
       postId,
       isDetail = false,
       onPressCom,
-      translatedText,
-      isHideTranslate,
+      // translatedText,
+      // isHideTranslate,
     } = props
     const {user} = useRevenueCat()
     const [isLoading, setIsLoading] = useState(false)
@@ -45,11 +45,12 @@ export const PostCard: React.FC<postCardI> = memo(
       PostStore.store.ownPosts.find(a => a.id === postId)
     const {t, i18n} = useTranslation()
 
-    const {transText, hideTranslate, text} = usePostTranslation({
-      translatedText,
-      isHideTranslate,
-      item,
-    })
+    // const {transText, hideTranslate, text} = usePostTranslation({
+    //   translatedText,
+    //   isHideTranslate,
+    //   item,
+    // })
+    const text = item?.text
 
     const onPressWand = async () => {
       const curItem: PostT | undefined = PostStore.store.posts.find(
@@ -83,7 +84,13 @@ export const PostCard: React.FC<postCardI> = memo(
       handleShareLink,
       isLiked,
       handleProfile,
-    } = usePostActions({isDetail, onPressCom, item, transText, hideTranslate})
+    } = usePostActions({
+      isDetail,
+      onPressCom,
+      item,
+      // transText: '',
+      // hideTranslate,
+    })
     if (!item) {
       return <></>
     }
