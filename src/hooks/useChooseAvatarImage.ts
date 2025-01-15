@@ -1,9 +1,6 @@
 import {useState} from 'react'
-import {Buffer} from 'buffer'
-import {NFT_STORAGE_API_KEY} from '@env'
 import {captureException, secondary, white} from '../constants'
 import ImagePicker from 'react-native-image-crop-picker'
-import RNFetchBlob from 'rn-fetch-blob'
 import {OnlinePlayer} from '../store'
 import axios from 'axios'
 // Function to get image from picker
@@ -27,8 +24,8 @@ const getImagePicker = async () => {
   return image
 }
 
-if (!process.env.PINATA_API_KEY) {
-  throw new Error('No PINATA_API_KEY')
+if (!process.env.PINATA_JWT) {
+  throw new Error('No PINATA_JWT')
 }
 
 // Функция для загрузки файла на Pinata
@@ -51,17 +48,17 @@ const pinFileToIPFS = async (fileUri: string, fileName: string) => {
   formData.append('pinataOptions', pinataOptions)
 
   try {
-    const res = await axios.post(
-      'https://api.pinata.cloud/pinning/pinFileToIPFS',
-      formData,
-      {
-        maxBodyLength: Infinity,
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${process.env.PINATA_API_KEY}`,
-        },
+    const options = {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.PINATA_JWT}`,
+        'Content-Type': 'multipart/form-data',
       },
-    )
+      data: formData,
+      url: 'https://api.pinata.cloud/pinning/pinFileToIPFS',
+    }
+
+    const res = await axios(options)
     return res.data.IpfsHash
   } catch (error) {
     console.error('Ошибка при загрузке на Pinata:', error)
